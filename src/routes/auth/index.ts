@@ -3,11 +3,12 @@ import { User } from "../../models/user"
 import { registerValidation, loginValidation } from "../../utils/validation";
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
+import hashPassword from "../../utils/hashpassword";
 
 const router = Router()
 
 
-router.post('/register', async (req, res) => {
+router.post('/api/user/register', async (req, res) => {
 
     //validation
     const { error } = registerValidation(req.body)
@@ -20,8 +21,7 @@ router.post('/register', async (req, res) => {
     if (emailExists) return res.status(400).send({ "error": "email already exists" })
 
     // hash pasword
-    const salt = await bcrypt.genSalt(10)
-    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+    const hashedPassword = await hashPassword(10, req.body.password)
     //create user
     const user = await new User({ ...req.body, password: hashedPassword })
 
@@ -29,14 +29,14 @@ router.post('/register', async (req, res) => {
 
     try {
         const savedUser = await user.save()
-        res.send({ user: savedUser })
+        res.status(201).send({ user: savedUser })
     } catch (error) {
         res.send({ error })
     }
 
 })
 
-router.post('/login', async (req, res) => {
+router.post('/api/user/login', async (req, res) => {
 
     const { email } = req.body;
 

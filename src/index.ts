@@ -9,9 +9,16 @@ db().then(() => console.log("connected...")).catch((error) => console.log(error)
 
 const app: any = express()
 
+const port = process.env.PORT || 3000
 
 app.use(express.json())
 // Route middlewares
-app.use('/api/user', authRoute)
+app.use(authRoute)
 
-app.listen(3000, () => console.log("server is running.."))
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(port, () => console.log("server is running.."))
+}
+
+
+
+export default app
